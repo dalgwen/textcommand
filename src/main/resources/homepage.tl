@@ -3,13 +3,29 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
   <head>
-    <title>Good Thymes Virtual Grocery</title>
+    <title>Text Command</title>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
   </head>
 
+<script>
+
+function sendCommand() {
+    xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/", true);
+    xhttp.onload = function() {
+        document.getElementById("response").textContent = xhttp.response;
+    };
+    xhttp.send(document.getElementById("command").value);
+}
+
+</script>
+
   <body>
   
-    <p>Temp content</p>
+    <p>Enter command : <input id="command"></input>
+    <button onClick="sendCommand()">Send</button>
+    </p>
+    <p id="response"></p>
 
   </body>
 
