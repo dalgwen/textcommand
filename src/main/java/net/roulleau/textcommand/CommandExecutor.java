@@ -34,7 +34,7 @@ public class CommandExecutor {
                 String methodName = method.getDeclaringClass().getName() + "::" + method.getName();
                 report.setMethodName(methodName);
                 Object[] parametersValue = buildParameters(matcher, cm);
-                LOGGER.info("Invoking {} with params", methodName, parametersValue);
+                LOGGER.info("Invoking {} with params {}", methodName, parametersValue);
                 try {
                     Object instance = null;
                     if (! Modifier.isStatic(method.getModifiers())) {

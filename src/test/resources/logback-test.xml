@@ -20,5 +20,8 @@
 	<logger name="ch.qos.logback" level="warn">
 		<appender-ref ref="STDOUT" />
 	</logger>
-
+	
+    <logger name="org.thymeleaf.TemplateEngine" level="warn">
+        <appender-ref ref="STDOUT" />
+    </logger>
 </configuration>
