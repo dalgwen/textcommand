@@ -23,7 +23,7 @@ public class CommandExecutor {
         Report report = new Report();
         report.setOriginalCommand(textCommand);
 
-        LOGGER.debug("Trying to find a match for command {}", textCommand);        
+        LOGGER.debug("Trying to find a match for command {}", textCommand);
         
         for(CommandMatcher cm : CommandStore.get()) {
             LOGGER.debug("Trying to match {} against {}", textCommand, cm.getOriginalTextCommand());

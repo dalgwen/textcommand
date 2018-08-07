@@ -1,4 +1,4 @@
-package net.roulleau.textcommand.http;
+package net.roulleau.textcommand.input.http;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,7 +13,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.roulleau.textcommand.CommandFinder;
 import net.roulleau.textcommand.defaultcommands.EchoCommands;
-import net.roulleau.textcommand.http.Result.ResultStatus;
+import net.roulleau.textcommand.input.http.JettyServer;
+import net.roulleau.textcommand.input.http.Result;
+import net.roulleau.textcommand.input.http.Result.ResultStatus;
 
 public class HttpServerTest {
 

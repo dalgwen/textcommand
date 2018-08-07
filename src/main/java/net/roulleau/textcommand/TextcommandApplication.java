@@ -1,11 +1,13 @@
 package net.roulleau.textcommand;
 
+import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.roulleau.textcommand.defaultcommands.EchoCommands;
 import net.roulleau.textcommand.exception.CommandExecutionException;
-import net.roulleau.textcommand.http.JettyServer;
+import net.roulleau.textcommand.input.dbus.DBusListener;
+import net.roulleau.textcommand.input.http.JettyServer;
 
 public class TextcommandApplication {
 
@@ -18,12 +20,18 @@ public class TextcommandApplication {
         register();
         
         startEmbeddedHttpServer();
+        
+        startDbusListener();
 
         LOGGER.info("Now waiting for text command input");
         while (true) {
             Thread.sleep(1000);
         }
         
+    }
+
+    private static void startDbusListener() throws DBusException {
+        new DBusListener();
     }
 
     private static void register() {

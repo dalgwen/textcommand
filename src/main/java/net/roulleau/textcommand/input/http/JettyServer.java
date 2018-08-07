@@ -1,4 +1,4 @@
-package net.roulleau.textcommand.http;
+package net.roulleau.textcommand.input.http;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;

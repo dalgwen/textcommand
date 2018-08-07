@@ -1,4 +1,4 @@
-package net.roulleau.textcommand.http;
+package net.roulleau.textcommand.input.http;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import net.roulleau.textcommand.exception.CommandExecutionException;
 import net.roulleau.textcommand.exception.InvalidParameterException;
 import net.roulleau.textcommand.exception.InvocationExecutionException;
 import net.roulleau.textcommand.exception.NoMatchingMethodFoundException;
-import net.roulleau.textcommand.http.Result.ResultStatus;
+import net.roulleau.textcommand.input.http.Result.ResultStatus;
 
 public class Handler extends AbstractHandler {
 

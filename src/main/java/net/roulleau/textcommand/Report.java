@@ -5,7 +5,7 @@ public class Report {
     protected String originalCommand;
     
     protected String methodName;
-    
+
     protected Object returnedObject;
  
     public String getOriginalCommand() {
@@ -32,5 +32,10 @@ public class Report {
         this.returnedObject = returnedObject;
     }
     
+    @Override
+    public String toString() {
+        return "Report [originalCommand=" + originalCommand + ", methodName=" + methodName + ", returnedObject=" + returnedObject + "]";
+    }
+
 }
 
