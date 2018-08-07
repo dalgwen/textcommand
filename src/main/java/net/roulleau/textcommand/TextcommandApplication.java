@@ -31,7 +31,9 @@ public class TextcommandApplication {
     }
 
     private static void startDbusListener() throws DBusException {
+        LOGGER.info("Starting dbus listener");
         new DBusListener();
+        LOGGER.info("dbus listener started");
     }
 
     private static void register() {
@@ -57,7 +59,6 @@ public class TextcommandApplication {
     }
     
     public static Report execute(String textCommand) throws CommandExecutionException {
-        
         return CommandExecutor.findAndExecute(textCommand);
     }
 

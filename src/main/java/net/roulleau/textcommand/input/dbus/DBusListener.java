@@ -3,6 +3,8 @@ package net.roulleau.textcommand.input.dbus;
 import org.freedesktop.DBus;
 import org.freedesktop.dbus.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.roulleau.textcommand.Report;
 import net.roulleau.textcommand.TextcommandApplication;
@@ -10,6 +12,8 @@ import net.roulleau.textcommand.exception.CommandExecutionException;
 
 public class DBusListener implements DBusTextCommandInterface {
 
+    Logger LOGGER = LoggerFactory.getLogger(DBusListener.class);
+    
     private DBusConnection dbusConnection;
     
     public DBusListener() throws DBusException {
@@ -21,6 +25,9 @@ public class DBusListener implements DBusTextCommandInterface {
     @Override
     @DBus.Description("Can execute commands previously defined in code")
     public String executeCommand(String command) {
+        
+        LOGGER.info("Receiving dbus call with command '{}'", command);
+        
         try {
             Report result = TextcommandApplication.execute(command);
             if (result.getReturnedObject() != null) {
