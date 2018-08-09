@@ -10,9 +10,9 @@ import net.roulleau.textcommand.annotation.Commands;
 import net.roulleau.textcommand.exception.MethodDeclarationException;
 
 
-public class CommandFinder {
+public class CommandRegister {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommandFinder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandRegister.class);
     
     public static void registerClass(Class<?> clazz) throws MethodDeclarationException {
         

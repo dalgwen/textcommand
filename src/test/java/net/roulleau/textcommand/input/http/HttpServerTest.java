@@ -11,7 +11,8 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import net.roulleau.textcommand.CommandFinder;
+import net.roulleau.textcommand.CommandRegister;
+import net.roulleau.textcommand.configuration.TextCommandParameters;
 import net.roulleau.textcommand.defaultcommands.EchoCommands;
 import net.roulleau.textcommand.input.http.JettyServer;
 import net.roulleau.textcommand.input.http.Result;
@@ -21,8 +22,8 @@ public class HttpServerTest {
 
     @Test
     public void testHttp() throws Exception {
-        CommandFinder.registerClass(EchoCommands.class);
-        JettyServer jettyServer = new JettyServer();
+        CommandRegister.registerClass(EchoCommands.class);
+        JettyServer jettyServer = new JettyServer(TextCommandParameters.DEFAULT_HTTP_PORT);
         jettyServer.start();
         int tried = 0;
         while (!jettyServer.isStarted()) {

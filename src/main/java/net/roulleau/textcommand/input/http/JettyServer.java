@@ -8,10 +8,17 @@ public class JettyServer {
 
     private static Server server;
     
+    private int port;
+    
+    public JettyServer(int port) {
+        this.port = port;
+    }
+
+
     public void start() throws Exception {
         server = new Server();
         ServerConnector connector = new ServerConnector(server);
-        connector.setPort(8080);
+        connector.setPort(port);
         server.setConnectors(new Connector[] {
                 connector });
         
