@@ -8,7 +8,7 @@ public abstract class TextCommandParameterJavaProperties implements TextCommandP
     protected Properties properties;
 
     @Override
-    public Optional<String> getValue(String parameterName) {
+    public Optional<Object> getValue(String parameterName) {
         if (properties != null) {
             return Optional.ofNullable(properties.getProperty(parameterName));
         } else {

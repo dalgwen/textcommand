@@ -13,13 +13,13 @@ public class TextCommandParameterClassPath extends TextCommandParameterJavaPrope
     
     public TextCommandParameterClassPath() {
         
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("textcommand.conf")) {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(TextCommandParameters.DEFAULT_FILENAME_PROPERTIES)) {
             if (is != null) {
                 LOGGER.info("Found configuration file in the classpath");
                 properties.load(is);
             }
         } catch (IOException | IllegalArgumentException e) {
-            throw new InvalidParameterException("Cannot read textcommand.conf from classpath");
+            throw new InvalidParameterException("Cannot read " + TextCommandParameters.DEFAULT_FILENAME_PROPERTIES + " from classpath");
         };
     }
 

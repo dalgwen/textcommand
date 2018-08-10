@@ -16,6 +16,10 @@ public class TextCommandParametersCommandLine implements TextCommandParameterFil
     
     private OptionSet optionSet;
     
+    public OptionSet getOptionSet() {
+        return optionSet;
+    }
+    
     public TextCommandParametersCommandLine(String args[], List<TextCommandParameterWithField> parametersAvailable) {
         
         LOGGER.info("Trying to parse configuration in program arguments");
@@ -29,16 +33,16 @@ public class TextCommandParametersCommandLine implements TextCommandParameterFil
             else {
                 parser.accepts(parameterName).withRequiredArg();
             }            
-        }
-        
-        optionSet = parser.parse(args);
-        
+        }        
+        optionSet = parser.parse(args);        
     }
 
     @Override
-    public Optional<String> getValue(String parameterName) {
+    public Optional<Object> getValue(String parameterName) {
         
-        Optional<String> parameterValue = Optional.ofNullable((String)optionSet.valueOf(parameterName));
+        Object valueRaw = optionSet.valueOf(parameterName);
+        
+        Optional<Object> parameterValue = Optional.ofNullable(valueRaw);
         if (parameterValue.isPresent()) {
             return parameterValue;
         }

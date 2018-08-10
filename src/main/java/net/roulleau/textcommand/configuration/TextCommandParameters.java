@@ -10,7 +10,11 @@ import net.roulleau.textcommand.exception.ConfigurationException;
 
 public class TextCommandParameters {
 
+    public static final String CONFIGURATION_FILE_PARAMETER_NAME = "configurationfile";
+   
     public static final int DEFAULT_HTTP_PORT = 8080;
+    
+    public static final String DEFAULT_FILENAME_PROPERTIES = "textcommand.conf";
     
     @TextCommandParameter("http.enabled")
     private Boolean isHttpEnabled = false;
@@ -20,6 +24,23 @@ public class TextCommandParameters {
     
     @TextCommandParameter("dbus.enabled")
     private Boolean isDbusEnabled = false;
+
+    @TextCommandParameter(CONFIGURATION_FILE_PARAMETER_NAME)
+    private String configurationFile = DEFAULT_FILENAME_PROPERTIES;
+
+    @TextCommandParameter("sms.enabled")
+    private Boolean smsEnabled = false;
+    
+    @TextCommandParameter("sms.authorizedsenders")
+    private List<String> authorizedSenders;
+    
+    public List<String> getAuthorizedSenders() {
+        return authorizedSenders;
+    }
+
+    public String getConfigurationFile() {
+        return configurationFile;
+    }
 
     public boolean isHttpEnabled() {
         return isHttpEnabled;
@@ -40,7 +61,7 @@ public class TextCommandParameters {
             
             if (annotation != null) {
                 String parameterName = annotation.value();
-                Optional<String> parameterValue = tcFiller.getValue(parameterName);
+                Optional<Object> parameterValue = tcFiller.getValue(parameterName);
                 if (parameterValue.isPresent()) {
                     Object paramaterValuedConverted = convertValue(parameterValue.get(), field.getType()); 
                     try {
@@ -53,14 +74,21 @@ public class TextCommandParameters {
         }        
     }
 
-    private Object convertValue(String parameterValue, Class<?> type) throws ConfigurationException {
+    private <T> T convertValue(Object parameterValue, Class<T> type) throws ConfigurationException {
+        
         if (type == String.class) {
-            return parameterValue;
+            return type.cast(parameterValue.toString());
         } else if (type == Integer.class){
-            return Integer.parseInt(parameterValue);
+            return type.cast(Integer.parseInt(parameterValue.toString()));
         } else if (type == Boolean.class) {
-            return Boolean.parseBoolean(parameterValue);
-        } else {
+            return type.cast(Boolean.parseBoolean(parameterValue.toString()));
+        } else if (type == List.class) {
+            if (parameterValue instanceof List) {
+                return type.cast(parameterValue);
+            } else {
+                return type.cast(Arrays.asList(parameterValue));
+            }
+        }else {
             throw new ConfigurationException("Runtime error : type " + type.toString() + " not accepted");
         }
     }
@@ -81,6 +109,10 @@ public class TextCommandParameters {
             this.annotation = annotation;
             this.field = field;
         }
+    }
+
+    public boolean isSmsEnabled() {
+        return smsEnabled;
     }
     
 }

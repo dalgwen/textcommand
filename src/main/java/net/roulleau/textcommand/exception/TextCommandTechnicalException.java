@@ -2,24 +2,24 @@ package net.roulleau.textcommand.exception;
 
 import net.roulleau.textcommand.Report;
 
-public class CommandExecutionException extends Exception implements CommonPartException{
-    
-    private static final long serialVersionUID = -4771464419529549917L;
+public class TextCommandTechnicalException extends RuntimeException implements CommonPartException{
+
+    private static final long serialVersionUID = -5950075415094250739L;
     String message;    
     Report partialReport;
 
-    public CommandExecutionException(String message, Exception cause) {
+    public TextCommandTechnicalException(String message, Exception cause) {
         super(cause);
         this.message = message;
     }
     
-    public CommandExecutionException(String message) {
+    public TextCommandTechnicalException(String message) {
         this.message = message;
     }
     
     @Override
     public Report getPartialReport() {
-        return partialReport != null ? partialReport : new Report();
+        return partialReport;
     }
 
     public void setPartialReport(Report partialReport) {
@@ -30,5 +30,4 @@ public class CommandExecutionException extends Exception implements CommonPartEx
     public String toString() {
         return message + (getCause() !=null ?". Cause : " + getCause().toString():"");
     }
-    
 }

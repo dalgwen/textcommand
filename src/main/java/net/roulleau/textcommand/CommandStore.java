@@ -7,7 +7,7 @@ import java.util.List;
 public class CommandStore {
     
     private static CommandOrderComparator orderer = new CommandOrderComparator();
-    private static List<CommandMatcher> commandMatchers = new ArrayList<CommandMatcher>();
+    private List<CommandMatcher> commandMatchers = new ArrayList<CommandMatcher>();
     
     public List<CommandMatcher> getAll() {
         return new ArrayList<CommandMatcher>(commandMatchers);
@@ -24,12 +24,10 @@ public class CommandStore {
     }
     
     public static class CommandOrderComparator implements Comparator<CommandMatcher> {
-
         @Override
         public int compare(CommandMatcher o1, CommandMatcher o2) {
             return o2.getPriority() - o1.getPriority();
         }
-        
     }
 
     public void clear() {

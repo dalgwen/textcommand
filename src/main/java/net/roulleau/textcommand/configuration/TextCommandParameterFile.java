@@ -1,6 +1,5 @@
 package net.roulleau.textcommand.configuration;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,16 +16,20 @@ public class TextCommandParameterFile extends TextCommandParameterJavaProperties
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextCommandParameterFile.class);
     
-    public TextCommandParameterFile() {
+    public TextCommandParameterFile(String filePath) {
         
-        Path currentWorkingDirConfFile = Paths.get("textcommand.conf").toAbsolutePath();
+        if (filePath == null) {
+            filePath = TextCommandParameters.DEFAULT_FILENAME_PROPERTIES;
+        }
+        
+        Path currentWorkingDirConfFile = Paths.get(filePath).toAbsolutePath();
         if (Files.exists(currentWorkingDirConfFile)) {
             LOGGER.info("Found configuration file in the working directory");
             properties = new Properties();
             try (InputStream input = new FileInputStream(currentWorkingDirConfFile.toFile())) {
                 properties.load(input);
             } catch (IOException | IllegalArgumentException e) {
-                throw new InvalidParameterException("Cannot read properties in the file textcommand.conf in current directory");
+                throw new InvalidParameterException("Cannot read properties in the file " + filePath + " in current directory");
             };
         }
     }

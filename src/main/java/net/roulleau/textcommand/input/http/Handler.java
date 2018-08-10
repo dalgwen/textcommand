@@ -23,11 +23,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.roulleau.textcommand.CommandExecutor;
 import net.roulleau.textcommand.Report;
-import net.roulleau.textcommand.TextcommandApplication;
 import net.roulleau.textcommand.exception.CommandExecutionException;
 import net.roulleau.textcommand.exception.InvalidParameterException;
 import net.roulleau.textcommand.exception.InvocationExecutionException;
 import net.roulleau.textcommand.exception.NoMatchingMethodFoundException;
+import net.roulleau.textcommand.exception.TextCommandTechnicalException;
 import net.roulleau.textcommand.input.http.Result.ResultStatus;
 
 public class Handler extends AbstractHandler {
@@ -67,7 +67,7 @@ public class Handler extends AbstractHandler {
                 LOGGER.debug("Execution by http invocation success");
             }
 
-        } catch (CommandExecutionException e) {
+        } catch (CommandExecutionException | TextCommandTechnicalException e) {
 
             LOGGER.error("Cannot execute the command {}", e.getPartialReport().getOriginalCommand());
             HTTPexecutionResultDTO = new Result();
@@ -76,13 +76,7 @@ public class Handler extends AbstractHandler {
                 HTTPexecutionResultDTO.setOriginalCommand(e.getPartialReport().getOriginalCommand());
             }
             if (e instanceof InvocationExecutionException) {
-                if (e.getCause() instanceof InvocationTargetException) {
-                    String originalExceptionMessage = ((InvocationTargetException) e.getCause()).getTargetException().getMessage();
-                    HTTPexecutionResultDTO.setDetailedMessage(originalExceptionMessage);
-                } else {
-                    HTTPexecutionResultDTO.setDetailedMessage(e.getCause().getMessage());
-                }
-
+                HTTPexecutionResultDTO.setDetailedMessage(((InvocationExecutionException)e).getDetailedMessage());
                 HTTPexecutionResultDTO.setResultStatus(ResultStatus.EXECUTION_FAILED);
             } else if (e instanceof NoMatchingMethodFoundException) {
                 HTTPexecutionResultDTO.setResultStatus(ResultStatus.NO_MATCH);
@@ -92,7 +86,6 @@ public class Handler extends AbstractHandler {
             } else {
                 HTTPexecutionResultDTO.setResultStatus(ResultStatus.EXECUTION_FAILED);
             }
-
         }
 
         if (hasCommand) {

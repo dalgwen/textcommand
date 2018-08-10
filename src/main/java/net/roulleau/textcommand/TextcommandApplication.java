@@ -17,6 +17,7 @@ import net.roulleau.textcommand.defaultcommands.EchoCommands;
 import net.roulleau.textcommand.exception.ConfigurationException;
 import net.roulleau.textcommand.input.dbus.DBusListener;
 import net.roulleau.textcommand.input.http.JettyServer;
+import net.roulleau.textcommand.input.sms.GammuHandler;
 
 public class TextcommandApplication {
 
@@ -30,7 +31,7 @@ public class TextcommandApplication {
         return parameters;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws DBusException, ConfigurationException {
 
         LOGGER.info("Starting TextCommand application");
         
@@ -38,50 +39,76 @@ public class TextcommandApplication {
         textCommandApplication.start(args);
     }
     
-    public void start(String[] args) throws Exception {
+    public void start(String[] args) throws DBusException, ConfigurationException {
         
         parameters = readConfiguration(args);
 
+        // registering commands and preparing a command executor:
         CommandStore commandStore = registerCommands();
         commandExecutor = new CommandExecutor(commandStore);
 
+        // Daemon mode enable the program to wait for message after initialization
+        boolean isInDaemonMode = false;
+        
+        //simple jetty server
         if (parameters.isHttpEnabled()) {
             startEmbeddedHttpServer();
+            isInDaemonMode = true;
         }
-
+        
+        //simple dbus listner
         if (parameters.isDbusEnabled()) {
             startDbusListener();
+            isInDaemonMode = true;
+        }
+        
+        //using environnement property as source of text command, as gammu could have set
+        if (parameters.isSmsEnabled()) { 
+            handleSmsEnvironnmentProperties();
         }
 
-        LOGGER.info("Now waiting for text command input");
-        while (true) {
-            Thread.sleep(1000);
+        //daemon mode will wait for input from other enabled module
+        while (true && isInDaemonMode) {
+            LOGGER.info("Now waiting for text command input");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOGGER.info("Interrupted. Closing application");
+            }
         }
 
+    }
+
+    private void handleSmsEnvironnmentProperties() {        
+        new GammuHandler(commandExecutor, parameters.getAuthorizedSenders()).start();       
     }
 
     private TextCommandParameters readConfiguration(String[] args) throws ConfigurationException {
 
         LOGGER.info("Reading configuration");
-        
         TextCommandParameters textCommandParameters = new TextCommandParameters();
+        
         List<TextCommandParameterWithField> allParametersAvailable = TextCommandParameters.getAllParametersAvailable();
 
+        //this linked list will handle the priority in overrided configuration
         LinkedList<TextCommandParameterFiller> configurationProviders = new LinkedList<TextCommandParameterFiller>();
         
-        // from file
-        configurationProviders.add(new TextCommandParameterFile());
-        // from file in classpath
+        // preparing command line
+        TextCommandParametersCommandLine textCommandParametersCommandLine = new TextCommandParametersCommandLine(args, allParametersAvailable);
+        // getting configuration from file
+        String configurationFilePath = (String) textCommandParametersCommandLine.getOptionSet().valueOf(TextCommandParameters.CONFIGURATION_FILE_PARAMETER_NAME);
+        configurationProviders.add(new TextCommandParameterFile(configurationFilePath));
+        // getting configuration from file in classpath
         configurationProviders.add(new TextCommandParameterClassPath());
-        // from command line
-        configurationProviders.add(new TextCommandParametersCommandLine(args, allParametersAvailable));
+        // getting configuration from command line
+        configurationProviders.add(textCommandParametersCommandLine);
 
+        // browse the list in order and fill the configuration POJO
         for (TextCommandParameterFiller tcpf : configurationProviders) {
             textCommandParameters.fillWith(tcpf);
         }
         
         return textCommandParameters;
-        
     }
 
     private void startDbusListener() throws DBusException {
@@ -118,5 +145,4 @@ public class TextcommandApplication {
         }
 
     }
-
 }

@@ -4,6 +4,6 @@ import java.util.Optional;
 
 public interface TextCommandParameterFiller {
 
-    Optional<String> getValue(String parameterName);
+    Optional<Object> getValue(String parameterName);
 
 }

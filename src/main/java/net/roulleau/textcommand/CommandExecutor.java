@@ -9,10 +9,10 @@ import java.util.regex.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.roulleau.textcommand.exception.CommandExecutionException;
 import net.roulleau.textcommand.exception.InvalidParameterException;
 import net.roulleau.textcommand.exception.InvocationExecutionException;
 import net.roulleau.textcommand.exception.NoMatchingMethodFoundException;
+import net.roulleau.textcommand.exception.TextCommandTechnicalException;
 
 public class CommandExecutor {
     
@@ -29,7 +29,7 @@ public class CommandExecutor {
         return commandStore;
     }
 
-    public Report findAndExecute(String textCommand) throws CommandExecutionException {
+    public Report findAndExecute(String textCommand) throws NoMatchingMethodFoundException, InvocationExecutionException {
         
         Report report = new Report();
         report.setOriginalCommand(textCommand);
@@ -54,11 +54,11 @@ public class CommandExecutor {
                     Object returnedObject = method.invoke(instance, parametersValue);
                     report.setReturnedObject(returnedObject);
                 } catch (IllegalAccessException | IllegalArgumentException e) {
-                    CommandExecutionException commandExecutionException = new CommandExecutionException("Cannot call", e);
+                    TextCommandTechnicalException commandExecutionException = new TextCommandTechnicalException("Cannot call", e);
                     commandExecutionException.setPartialReport(report);
                     throw commandExecutionException;
                 } catch (InstantiationException e) {
-                    CommandExecutionException commandExecutionException = new CommandExecutionException("Cannot instantiate class for the method " + method.getName
+                    TextCommandTechnicalException commandExecutionException = new TextCommandTechnicalException("Cannot instantiate class for the method " + method.getName
                             ()+ ". Maybe you should use the static modifier");
                     commandExecutionException.setPartialReport(report);
                     throw commandExecutionException;
@@ -77,7 +77,7 @@ public class CommandExecutor {
         
     }
     
-    private Object[] buildParameters(Matcher matcher, CommandMatcher cm) throws CommandExecutionException {
+    private Object[] buildParameters(Matcher matcher, CommandMatcher cm) throws InvalidParameterException {
         
         Method method = cm.getMethod();
         Parameter[] parameters = method.getParameters();
@@ -100,7 +100,7 @@ public class CommandExecutor {
                 paramPosition++;
             } else {
                 throw new InvalidParameterException(parameterName);
-            }            
+            }
         }
         
         return paramatersValue;

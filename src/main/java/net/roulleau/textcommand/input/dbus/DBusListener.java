@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import net.roulleau.textcommand.CommandExecutor;
 import net.roulleau.textcommand.Report;
 import net.roulleau.textcommand.exception.CommandExecutionException;
+import net.roulleau.textcommand.exception.TextCommandTechnicalException;
 
 public class DBusListener implements DBusTextCommandInterface {
 
@@ -38,7 +39,7 @@ public class DBusListener implements DBusTextCommandInterface {
             } else {
                 return result.toString();
             }
-        } catch (CommandExecutionException e) {
+        } catch (CommandExecutionException | TextCommandTechnicalException e) {
             throw new DBusCustomException(e);
         }
     }

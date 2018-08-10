@@ -1,5 +1,7 @@
 package net.roulleau.textcommand.exception;
 
+import java.lang.reflect.InvocationTargetException;
+
 public class InvocationExecutionException extends CommandExecutionException {
 
     private static final long serialVersionUID = 1015193675812324793L;
@@ -12,5 +14,13 @@ public class InvocationExecutionException extends CommandExecutionException {
         super(message, cause);
     }
 
+    public String getDetailedMessage() {
+        if (getCause() instanceof InvocationTargetException) {
+            String originalExceptionMessage = ((InvocationTargetException) getCause()).getTargetException().getMessage();
+            return originalExceptionMessage;
+        } else {
+            return getCause().getMessage();
+        }
+    }
 
 }

@@ -1,6 +1,6 @@
 package net.roulleau.textcommand.exception;
 
-public class InvalidParameterException extends CommandExecutionException {
+public class InvalidParameterException extends TextCommandTechnicalException {
 
     private static final long serialVersionUID = 1619716587419757274L;
 
