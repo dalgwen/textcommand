@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import net.roulleau.textcommand.exception.ParameterException;
+import net.roulleau.textcommand.exception.ConfigurationException;
 
 public class TextCommandParameters {
 
@@ -33,7 +33,7 @@ public class TextCommandParameters {
         return isDbusEnabled;
     }
     
-    public void fillWith(TextCommandParameterFiller tcFiller) throws ParameterException {
+    public void fillWith(TextCommandParameterFiller tcFiller) throws ConfigurationException {
         
         for (Field field : TextCommandParameters.class.getDeclaredFields()) {
             TextCommandParameter annotation = field.getAnnotation(TextCommandParameter.class);
@@ -46,14 +46,14 @@ public class TextCommandParameters {
                     try {
                         field.set(this, paramaterValuedConverted);
                     } catch (IllegalArgumentException | IllegalAccessException e) {
-                        throw new ParameterException("Cannot access parameter " + parameterName);
+                        throw new ConfigurationException("Cannot access parameter " + parameterName);
                     }
                 }
             }
         }        
     }
 
-    private Object convertValue(String parameterValue, Class<?> type) throws ParameterException {
+    private Object convertValue(String parameterValue, Class<?> type) throws ConfigurationException {
         if (type == String.class) {
             return parameterValue;
         } else if (type == Integer.class){
@@ -61,11 +61,11 @@ public class TextCommandParameters {
         } else if (type == Boolean.class) {
             return Boolean.parseBoolean(parameterValue);
         } else {
-            throw new ParameterException("Runtime error : type " + type.toString() + " not accepted");
+            throw new ConfigurationException("Runtime error : type " + type.toString() + " not accepted");
         }
     }
     
-    public List<TextCommandParameterWithField> getAllParametersAvailable() {
+    public static List<TextCommandParameterWithField> getAllParametersAvailable() {
         
         return Arrays.stream(TextCommandParameters.class.getDeclaredFields())
                 .map(field -> new TextCommandParameterWithField(field.getAnnotation(TextCommandParameter.class), field))

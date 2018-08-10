@@ -17,15 +17,26 @@ import net.roulleau.textcommand.exception.NoMatchingMethodFoundException;
 public class CommandExecutor {
     
     public static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutor.class);
+    
+    public CommandStore commandStore;
 
-    public static Report findAndExecute(String textCommand) throws CommandExecutionException {
+    public CommandExecutor(CommandStore commandStore) {
+        super();
+        this.commandStore = commandStore;
+    }
+
+    public CommandStore getCommandStore() {
+        return commandStore;
+    }
+
+    public Report findAndExecute(String textCommand) throws CommandExecutionException {
         
         Report report = new Report();
         report.setOriginalCommand(textCommand);
 
         LOGGER.debug("Trying to find a match for command {}", textCommand);
         
-        for(CommandMatcher cm : CommandStore.get()) {
+        for(CommandMatcher cm : commandStore.getAll()) {
             LOGGER.debug("Trying to match {} against {}", textCommand, cm.getOriginalTextCommand());
             Matcher matcher = cm.getCompiledRegex().matcher(textCommand);
             if (matcher.matches()) {
@@ -66,7 +77,7 @@ public class CommandExecutor {
         
     }
     
-    private static Object[] buildParameters(Matcher matcher, CommandMatcher cm) throws CommandExecutionException {
+    private Object[] buildParameters(Matcher matcher, CommandMatcher cm) throws CommandExecutionException {
         
         Method method = cm.getMethod();
         Parameter[] parameters = method.getParameters();

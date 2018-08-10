@@ -1,5 +1,6 @@
 package net.roulleau.textcommand;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.freedesktop.dbus.exceptions.DBusException;
@@ -13,8 +14,7 @@ import net.roulleau.textcommand.configuration.TextCommandParameters;
 import net.roulleau.textcommand.configuration.TextCommandParameters.TextCommandParameterWithField;
 import net.roulleau.textcommand.configuration.TextCommandParametersCommandLine;
 import net.roulleau.textcommand.defaultcommands.EchoCommands;
-import net.roulleau.textcommand.exception.CommandExecutionException;
-import net.roulleau.textcommand.exception.ParameterException;
+import net.roulleau.textcommand.exception.ConfigurationException;
 import net.roulleau.textcommand.input.dbus.DBusListener;
 import net.roulleau.textcommand.input.http.JettyServer;
 
@@ -22,24 +22,34 @@ public class TextcommandApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextcommandApplication.class);
 
-    private static String[] commandLine;
+    private TextCommandParameters parameters;
+        
+    private CommandExecutor commandExecutor;
 
-    private static TextCommandParameters textCommandParameters = new TextCommandParameters();
+    public TextCommandParameters getParameters() {
+        return parameters;
+    }
 
     public static void main(String[] args) throws Exception {
 
         LOGGER.info("Starting TextCommand application");
-        commandLine = args;
+        
+        TextcommandApplication textCommandApplication = new TextcommandApplication();
+        textCommandApplication.start(args);
+    }
+    
+    public void start(String[] args) throws Exception {
+        
+        parameters = readConfiguration(args);
 
-        readProperties();
+        CommandStore commandStore = registerCommands();
+        commandExecutor = new CommandExecutor(commandStore);
 
-        register();
-
-        if (textCommandParameters.isHttpEnabled()) {
-            startEmbeddedHttpServer(textCommandParameters.getHttpPort());
+        if (parameters.isHttpEnabled()) {
+            startEmbeddedHttpServer();
         }
 
-        if (textCommandParameters.isDbusEnabled()) {
+        if (parameters.isDbusEnabled()) {
             startDbusListener();
         }
 
@@ -50,55 +60,63 @@ public class TextcommandApplication {
 
     }
 
-    private static void readProperties() throws ParameterException {
+    private TextCommandParameters readConfiguration(String[] args) throws ConfigurationException {
 
+        LOGGER.info("Reading configuration");
+        
+        TextCommandParameters textCommandParameters = new TextCommandParameters();
+        List<TextCommandParameterWithField> allParametersAvailable = TextCommandParameters.getAllParametersAvailable();
+
+        LinkedList<TextCommandParameterFiller> configurationProviders = new LinkedList<TextCommandParameterFiller>();
+        
         // from file
-        TextCommandParameterFiller tcpFile = new TextCommandParameterFile();
-        textCommandParameters.fillWith(tcpFile);
-
+        configurationProviders.add(new TextCommandParameterFile());
         // from file in classpath
-        TextCommandParameterFiller tcpFileClasspath = new TextCommandParameterClassPath();
-        textCommandParameters.fillWith(tcpFileClasspath);
-
-        // from system properties
-
+        configurationProviders.add(new TextCommandParameterClassPath());
         // from command line
-        List<TextCommandParameterWithField> allParametersAvailable = textCommandParameters.getAllParametersAvailable();
-        TextCommandParameterFiller tcpCommandLine = new TextCommandParametersCommandLine(commandLine, allParametersAvailable);
-        textCommandParameters.fillWith(tcpCommandLine);
+        configurationProviders.add(new TextCommandParametersCommandLine(args, allParametersAvailable));
 
+        for (TextCommandParameterFiller tcpf : configurationProviders) {
+            textCommandParameters.fillWith(tcpf);
+        }
+        
+        return textCommandParameters;
+        
     }
 
-    private static void startDbusListener() throws DBusException {
+    private void startDbusListener() throws DBusException {
         LOGGER.info("Starting dbus listener");
-        new DBusListener();
+        new DBusListener(commandExecutor);
         LOGGER.info("dbus listener started");
     }
 
-    private static void register() {
+    private CommandStore registerCommands() {
+        CommandStore commandStore = new CommandStore();
         LOGGER.info("Starting registering commands");
-        CommandRegister.registerClass(EchoCommands.class);
-        LOGGER.info("End of registering commands");
+        commandStore.addAll(CommandRegister.registerClass(EchoCommands.class));
+        LOGGER.info("All commands registered");
+        return commandStore;
     }
 
-    private static void startEmbeddedHttpServer(int port) throws Exception {
+    private void startEmbeddedHttpServer() {
         LOGGER.info("Starting embedded http server");
-        JettyServer jettyServer = new JettyServer(port);
-        jettyServer.start();
-        while (!jettyServer.isStarted() && !jettyServer.isStoppedOrStopping()) {
-            Thread.sleep(100);
-        }
-        if (jettyServer.isStarted()) {
-            LOGGER.info("Embedded http server is running");
-        } else {
-            if (jettyServer.isStoppedOrStopping()) {
-                LOGGER.info("Embedded http server start failed !?");
+        JettyServer jettyServer = new JettyServer(commandExecutor, parameters.getHttpPort());
+        try {
+            jettyServer.start();
+            while (!jettyServer.isStarted() && !jettyServer.isStoppedOrStopping()) {
+                Thread.sleep(100);
             }
+            if (jettyServer.isStarted()) {
+                LOGGER.info("Embedded http server is running");
+            } else {
+                if (jettyServer.isStoppedOrStopping()) {
+                    LOGGER.info("Embedded http server start failed !?");
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("Cannot start jetty server", e);
         }
-    }
 
-    public static Report execute(String textCommand) throws CommandExecutionException {
-        return CommandExecutor.findAndExecute(textCommand);
     }
 
 }

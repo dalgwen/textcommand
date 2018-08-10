@@ -5,11 +5,12 @@ import static org.assertj.core.api.Assertions.fail;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.roulleau.textcommand.CommandExecutor;
-import net.roulleau.textcommand.CommandRegister;
 import net.roulleau.textcommand.Report;
+import net.roulleau.textcommand.TestUtils;
 import net.roulleau.textcommand.annotation.Command;
 import net.roulleau.textcommand.annotation.Commands;
 import net.roulleau.textcommand.exception.CommandExecutionException;
@@ -20,7 +21,13 @@ import net.roulleau.textcommand.exception.NoMatchingMethodFoundException;
 public class CommandsTest {
 
     static String result;
+    private static CommandExecutor commandExecutor;
 
+    @BeforeClass
+    public static void init() {
+        commandExecutor = TestUtils.prepareCommandExecutor(CommandsTest.class);
+    }
+    
     @Command("greet $arg")
     public void firstCommand(String arg) {
         result = "hello to " + arg;
@@ -48,38 +55,31 @@ public class CommandsTest {
 
     @Test
     public void test() throws CommandExecutionException {
-        CommandRegister.clear();
-        CommandRegister.registerClass(getClass());
-        Report report = CommandExecutor.findAndExecute("greet jeanpaul");
+        Report report = commandExecutor.findAndExecute("greet jeanpaul");
         assertThat(report.getMethodName()).isEqualTo("net.roulleau.textcommand.defaultcommands.CommandsTest::firstCommand");
         assertThat(result).isEqualTo("hello to jeanpaul");
 
-        report = CommandExecutor.findAndExecute("greet jeanpaul and paula");
+        report = commandExecutor.findAndExecute("greet jeanpaul and paula");
         assertThat(report.getOriginalCommand()).isEqualTo("greet jeanpaul and paula");
         assertThat(result).isEqualTo("hello to jeanpaul and hello to paula");
     }
 
     @Test
     public void testWithOr() throws CommandExecutionException {
-        CommandRegister.clear();
-        CommandRegister.registerClass(getClass());
-        CommandExecutor.findAndExecute("insult jeanpaul and michel");
+        commandExecutor.findAndExecute("insult jeanpaul and michel");
         assertThat(result).isEqualTo("CENSORED to jeanpaul and CENSORED to michel");
 
-        CommandExecutor.findAndExecute("barf at jéan'paul or robert");
+        commandExecutor.findAndExecute("barf at jéan'paul or robert");
         assertThat(result).isEqualTo("CENSORED to jéan'paul and CENSORED to robert");
 
-        CommandExecutor.findAndExecute("greet jeanpaul and paula");
+        commandExecutor.findAndExecute("greet jeanpaul and paula");
         assertThat(result).isEqualTo("hello to jeanpaul and hello to paula");
     }
 
     @Test
     public void test_nomatch() throws InvocationTargetException {
-        CommandRegister.clear();
-        CommandRegister.registerClass(getClass());
-
         try {
-            CommandExecutor.findAndExecute("no match");
+            commandExecutor.findAndExecute("no match");
             fail("Should not happened ! Exception should be thrown");
         } catch (CommandExecutionException ce) {
             assertThat(ce).isInstanceOf(NoMatchingMethodFoundException.class);
@@ -89,18 +89,14 @@ public class CommandsTest {
 
     @Test
     public void testReturn() throws CommandExecutionException {
-        CommandRegister.clear();
-        CommandRegister.registerClass(getClass());
-        Report report = CommandExecutor.findAndExecute("I want a return");
+        Report report = commandExecutor.findAndExecute("I want a return");
         assertThat(report.getReturnedObject()).isEqualTo("here is one");
     }
 
     @Test
     public void testFailure() throws CommandExecutionException {
-        CommandRegister.clear();
-        CommandRegister.registerClass(getClass());
         try {
-            CommandExecutor.findAndExecute("I want a big fail");
+            commandExecutor.findAndExecute("I want a big fail");
             fail("Should not happened ! Exception should be thrown");
         } catch (CommandExecutionException ce) {
             assertThat(ce).isInstanceOf(InvocationExecutionException.class);

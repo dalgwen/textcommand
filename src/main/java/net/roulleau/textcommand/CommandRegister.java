@@ -1,6 +1,9 @@
 package net.roulleau.textcommand;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +17,11 @@ public class CommandRegister {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandRegister.class);
     
-    public static void registerClass(Class<?> clazz) throws MethodDeclarationException {
+    public static List<CommandMatcher> registerClass(Class<?> clazz) throws MethodDeclarationException {
         
         LOGGER.info("Registering class {}", clazz.getName());
+        
+        List<CommandMatcher> commandList = new ArrayList<CommandMatcher>();
         
         Commands annotationCommands = clazz.getAnnotation(Commands.class);
         if(annotationCommands == null) {
@@ -28,19 +33,18 @@ public class CommandRegister {
             Command[] commandAnnotations = method.getAnnotationsByType(Command.class);
             for (Command commandAnnotation : commandAnnotations) {
                 LOGGER.info("Found appropriate method {}", method.getName());
-                createCommandMatcher(method, commandAnnotation, annotationCommands.defaultPriority());
+                Optional<CommandMatcher> commandMatcher = createCommandMatcher(method, commandAnnotation, annotationCommands.defaultPriority());
+                commandMatcher.ifPresent(cm ->commandList.add(cm) );
             }
         }
-    }
-    
-    public static void clear() {
-        CommandStore.clear();
-    }
+        
+        return commandList;
+    }    
 
-    private static void createCommandMatcher(Method method, Command commandAnnotation, int defaultPriority) {
+    private static Optional<CommandMatcher> createCommandMatcher(Method method, Command commandAnnotation, int defaultPriority) {
         
         if (! commandAnnotation.enabled()) {
-            return;
+            return Optional.empty();
         }
         
         int priority = 0;
@@ -51,8 +55,7 @@ public class CommandRegister {
             priority = defaultPriority;
         }
         
-        CommandMatcher commandMatcher = new CommandMatcher(method, textCommand, priority);
-        CommandStore.add(commandMatcher);        
+        return Optional.of(new CommandMatcher(method, textCommand, priority));
     }    
 
 }

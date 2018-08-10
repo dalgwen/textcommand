@@ -9,12 +9,17 @@ public class CommandStore {
     private static CommandOrderComparator orderer = new CommandOrderComparator();
     private static List<CommandMatcher> commandMatchers = new ArrayList<CommandMatcher>();
     
-    public static List<CommandMatcher> get() {
+    public List<CommandMatcher> getAll() {
         return new ArrayList<CommandMatcher>(commandMatchers);
     }
     
-    public static void add(CommandMatcher cm) {
+    public void add(CommandMatcher cm) {
         commandMatchers.add(cm);
+        commandMatchers.sort(orderer);
+    }    
+
+    public void addAll(List<CommandMatcher> commandsList) {
+        commandMatchers.addAll(commandsList);
         commandMatchers.sort(orderer);
     }
     
@@ -27,7 +32,8 @@ public class CommandStore {
         
     }
 
-    public static void clear() {
+    public void clear() {
         commandMatchers.clear();
     }
+
 }

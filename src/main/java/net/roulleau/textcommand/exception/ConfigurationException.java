@@ -1,10 +1,10 @@
 package net.roulleau.textcommand.exception;
 
-public class ParameterException extends Exception {
+public class ConfigurationException extends Exception {
 
     private static final long serialVersionUID = -4364481747354094134L;
     
-    public ParameterException(String message) {
+    public ConfigurationException(String message) {
         super(message);
     }
 

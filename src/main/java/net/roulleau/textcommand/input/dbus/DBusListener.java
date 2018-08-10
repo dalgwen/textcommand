@@ -6,8 +6,8 @@ import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.roulleau.textcommand.CommandExecutor;
 import net.roulleau.textcommand.Report;
-import net.roulleau.textcommand.TextcommandApplication;
 import net.roulleau.textcommand.exception.CommandExecutionException;
 
 public class DBusListener implements DBusTextCommandInterface {
@@ -16,7 +16,10 @@ public class DBusListener implements DBusTextCommandInterface {
     
     private DBusConnection dbusConnection;
     
-    public DBusListener() throws DBusException {
+    private CommandExecutor commandExecutor;
+    
+    public DBusListener(CommandExecutor commandExecutor) throws DBusException {
+        this.commandExecutor = commandExecutor;
         dbusConnection = DBusConnection.getConnection(DBusConnection.SESSION);
         dbusConnection.requestBusName("net.roulleau.textcommand");
         dbusConnection.exportObject("/Command", this);
@@ -29,7 +32,7 @@ public class DBusListener implements DBusTextCommandInterface {
         LOGGER.info("Receiving dbus call with command '{}'", command);
         
         try {
-            Report result = TextcommandApplication.execute(command);
+            Report result = commandExecutor.findAndExecute(command);
             if (result.getReturnedObject() != null) {
                 return result.getReturnedObject().toString();
             } else {

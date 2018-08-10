@@ -21,6 +21,7 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import net.roulleau.textcommand.CommandExecutor;
 import net.roulleau.textcommand.Report;
 import net.roulleau.textcommand.TextcommandApplication;
 import net.roulleau.textcommand.exception.CommandExecutionException;
@@ -37,7 +38,11 @@ public class Handler extends AbstractHandler {
     
     private static TemplateEngine templateEngine;
     
-    public Handler() {
+    private CommandExecutor commandExecutor;
+    
+    public Handler(CommandExecutor commandExecutor) {
+        this.commandExecutor = commandExecutor;
+        
         templateEngine = new TemplateEngine();
         templateEngine.setTemplateResolver(new ClassLoaderTemplateResolver());
     }
@@ -57,7 +62,7 @@ public class Handler extends AbstractHandler {
             while ((line = reader.readLine()) != null) {
                 hasCommand = true;
                 LOGGER.info("Trying to execute http call \"{}\"...", line);
-                Report execute = TextcommandApplication.execute(line);
+                Report execute = commandExecutor.findAndExecute(line);
                 HTTPexecutionResultDTO = new Result(execute);
                 LOGGER.debug("Execution by http invocation success");
             }
