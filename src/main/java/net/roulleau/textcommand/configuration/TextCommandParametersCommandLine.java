@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.roulleau.textcommand.configuration.TextCommandParameters.TextCommandParameterWithField;
@@ -30,6 +31,9 @@ public class TextCommandParametersCommandLine implements TextCommandParameterFil
             if (parameterField.field.getType() == Boolean.class) {
                 parser.accepts(parameterName).withOptionalArg();
             }
+            if (parameterField.field.getType() == List.class) {
+                parser.accepts(parameterName).withRequiredArg().withValuesSeparatedBy(",");
+            }
             else {
                 parser.accepts(parameterName).withRequiredArg();
             }            
@@ -40,7 +44,12 @@ public class TextCommandParametersCommandLine implements TextCommandParameterFil
     @Override
     public Optional<Object> getValue(String parameterName) {
         
-        Object valueRaw = optionSet.valueOf(parameterName);
+        Object valueRaw;
+        try {
+            valueRaw = optionSet.valueOf(parameterName);
+        }catch (OptionException oe) {
+            valueRaw = optionSet.valuesOf(parameterName);
+        }
         
         Optional<Object> parameterValue = Optional.ofNullable(valueRaw);
         if (parameterValue.isPresent()) {

@@ -28,6 +28,7 @@ public class GammuHandler {
     
     private List<String> normalizeWithInternationalId(List<String> authorizedSenders) {
         return authorizedSenders.stream()
+                .map(String::trim)
                 .map(GammuHandler::normalizeWithInternationalId)
                 .collect(Collectors.toList());
     }

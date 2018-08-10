@@ -86,7 +86,7 @@ public class TextCommandParameters {
             if (parameterValue instanceof List) {
                 return type.cast(parameterValue);
             } else {
-                return type.cast(Arrays.asList(parameterValue));
+                return type.cast(Arrays.asList(parameterValue.toString().split(",")));
             }
         }else {
             throw new ConfigurationException("Runtime error : type " + type.toString() + " not accepted");
