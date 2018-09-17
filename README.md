@@ -1,6 +1,6 @@
 
 # textcommand
-Java framework/library designed to run arbitrary code, triggered by sending text command in natural langage. The text can come from various interface (http, dbus, and more soon).
+Java framework/library designed to run arbitrary code, triggered by sending text command in natural langage. The text can come from various interface (http, dbus, sms, and more soon).
 
 Simple use case :
 Start by coding your functions with the proper annotation :
@@ -42,4 +42,4 @@ This make you free from the burden of handling regular expression.
 For example (this is my main use case), you could design your home automation system, which will turn the light or other system by using the proper API, and make it responsive to several command in natural language. Then make it accessible by several ways with the proper interface already included.
 
 Plan for the future :
-- adding several other interface (SMS, xmpp, email, voice control)
+- adding several other interface (xmpp, email, voice control)
