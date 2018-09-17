@@ -1,18 +1,14 @@
 package net.roulleau.textcommand;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.roulleau.textcommand.configuration.TextCommandParameterClassPath;
-import net.roulleau.textcommand.configuration.TextCommandParameterFile;
-import net.roulleau.textcommand.configuration.TextCommandParameterFiller;
+import net.roulleau.gmpe.Gmpe;
+import net.roulleau.gmpe.sources.ParameterSourceClassPath;
+import net.roulleau.gmpe.sources.ParameterSourceFile;
+import net.roulleau.gmpe.sources.ParameterSourceCommandLine;
 import net.roulleau.textcommand.configuration.TextCommandParameters;
-import net.roulleau.textcommand.configuration.TextCommandParameters.TextCommandParameterWithField;
-import net.roulleau.textcommand.configuration.TextCommandParametersCommandLine;
 import net.roulleau.textcommand.defaultcommands.EchoCommands;
 import net.roulleau.textcommand.exception.ConfigurationException;
 import net.roulleau.textcommand.input.dbus.DBusListener;
@@ -88,25 +84,11 @@ public class TextcommandApplication {
         LOGGER.info("Reading configuration");
         TextCommandParameters textCommandParameters = new TextCommandParameters();
         
-        List<TextCommandParameterWithField> allParametersAvailable = TextCommandParameters.getAllParametersAvailable();
-
-        //this linked list will handle the priority in overrided configuration
-        LinkedList<TextCommandParameterFiller> configurationProviders = new LinkedList<TextCommandParameterFiller>();
-        
-        // preparing command line
-        TextCommandParametersCommandLine textCommandParametersCommandLine = new TextCommandParametersCommandLine(args, allParametersAvailable);
-        // getting configuration from file
-        String configurationFilePath = (String) textCommandParametersCommandLine.getOptionSet().valueOf(TextCommandParameters.CONFIGURATION_FILE_PARAMETER_NAME);
-        configurationProviders.add(new TextCommandParameterFile(configurationFilePath));
-        // getting configuration from file in classpath
-        configurationProviders.add(new TextCommandParameterClassPath());
-        // getting configuration from command line
-        configurationProviders.add(textCommandParametersCommandLine);
-
-        // browse the list in order and fill the configuration POJO
-        for (TextCommandParameterFiller tcpf : configurationProviders) {
-            textCommandParameters.fillWith(tcpf);
-        }
+        Gmpe.fill(textCommandParameters).with(
+        		new ParameterSourceCommandLine(args),
+        		new ParameterSourceFile(),
+        		new ParameterSourceClassPath(),
+        		new ParameterSourceCommandLine(args));
         
         return textCommandParameters;
     }

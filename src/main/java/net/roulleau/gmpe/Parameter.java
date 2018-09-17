@@ -1,4 +1,4 @@
-package net.roulleau.textcommand.configuration;
+package net.roulleau.gmpe;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,8 +7,10 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface TextCommandParameter {
+public @interface Parameter {
 
     public String value();
+    
+    public boolean mandatory() default false;
     
 }

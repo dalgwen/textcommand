@@ -1,13 +1,13 @@
-package net.roulleau.textcommand.configuration;
+package net.roulleau.gmpe.sources;
 
 import java.util.Optional;
 import java.util.Properties;
 
-public abstract class TextCommandParameterJavaProperties implements TextCommandParameterFiller {
+public abstract class ParameterSourceJavaProperties extends ParameterFiller {
     
     protected Properties properties;
 
-    @Override
+	@Override
     public Optional<Object> getValue(String parameterName) {
         if (properties != null) {
             return Optional.ofNullable(properties.getProperty(parameterName));

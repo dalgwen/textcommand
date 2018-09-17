@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jdk.nashorn.internal.runtime.ParserException;
+import net.roulleau.textcommand.exception.MethodDeclarationException;
 import net.roulleau.textcommand.parser.CommandParser;
 import net.roulleau.textcommand.parser.SimpleGrammar;
 import net.roulleau.textcommand.parser.Token;
@@ -89,7 +89,7 @@ public class CommandMatcher {
                 currentGroupIndex++;
                 break;
             default:
-                throw new ParserException("Unknown token type");
+                throw new MethodDeclarationException("Unknown token type");
             }
         }
 
